@@ -74,3 +74,16 @@ async Task<IResult> ChangeAvailability(int id, DataContext context)
     await context.SaveChangesAsync();
     return TypedResults.Ok(existingEbook);
 }
+
+async Task<IResult> IncrementStock(int id, [FromBody] IncrementStockDto ebookDto, DataContext context)
+{
+    var existingEbook = await context.EBooks.FindAsync(id);
+    if (existingEbook is null)
+        return TypedResults.NotFound("eBook doesn't exist");
+    if (ebookDto.Stock <= 0)
+        return TypedResults.BadRequest("Invalid data provided");
+    existingEbook.Stock += ebookDto.Stock;
+    context.Entry(existingEbook).State = EntityState.Modified;
+    await context.SaveChangesAsync();
+    return TypedResults.Ok(existingEbook);
+}
