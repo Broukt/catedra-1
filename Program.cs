@@ -48,7 +48,7 @@ async Task<IResult> UpdateBook(int id, [FromBody] EditEbookDto ebookDto, DataCon
 {
     var existingEbook = await context.EBooks.FindAsync(id);
     if (existingEbook is null)
-        return TypedResults.BadRequest("eBook doesn't exist");
+        return TypedResults.NotFound("eBook doesn't exist");
     if (!string.IsNullOrEmpty(ebookDto.Title))
         existingEbook.Title = ebookDto.Title;
     if (!string.IsNullOrEmpty(ebookDto.Author))
@@ -59,6 +59,17 @@ async Task<IResult> UpdateBook(int id, [FromBody] EditEbookDto ebookDto, DataCon
         existingEbook.Format = ebookDto.Format;
     if (ebookDto.Price >= 0)
         existingEbook.Price = ebookDto.Price;
+    context.Entry(existingEbook).State = EntityState.Modified;
+    await context.SaveChangesAsync();
+    return TypedResults.Ok(existingEbook);
+}
+
+async Task<IResult> ChangeAvailability(int id, DataContext context)
+{
+    var existingEbook = await context.EBooks.FindAsync(id);
+    if (existingEbook is null)
+        return TypedResults.NotFound("eBook doesn't exist");
+    existingEbook.IsAvailable = !existingEbook.IsAvailable;
     context.Entry(existingEbook).State = EntityState.Modified;
     await context.SaveChangesAsync();
     return TypedResults.Ok(existingEbook);
