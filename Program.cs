@@ -11,6 +11,12 @@ var ebooks = app.MapGroup("api/ebook");
 
 // TODO: Add more routes
 ebooks.MapPost("/", CreateEBookAsync);
+ebooks.MapGet("/?genre={genre}&author={author}&format={format}", GetAllBooks);
+ebooks.MapPut("/{id}", UpdateBook);
+ebooks.MapPut("/{id}/change-availability", ChangeAvailability);
+ebooks.MapPut("/{id}/increment-stock", IncrementStock);
+ebooks.MapPost("/purchase", BuyEbook);
+ebooks.MapDelete("/{id}", DeleteEbook);
 
 app.Run();
 
