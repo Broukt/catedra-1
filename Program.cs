@@ -106,3 +106,13 @@ async Task<IResult> BuyEbook([FromBody] PurchaseDto purchaseDto, DataContext con
     await context.SaveChangesAsync();
     return TypedResults.Ok("Purchase done successfully!");
 }
+
+async Task<IResult> DeleteEbook(int id, DataContext context)
+{
+    var existingEbook = await context.EBooks.FindAsync(id);
+    if (existingEbook is null)
+        return TypedResults.NotFound("eBook doesn't exist");
+    context.Remove(existingEbook);
+    await context.SaveChangesAsync();
+    return TypedResults.Ok("eBook deleted successfully!");
+}
