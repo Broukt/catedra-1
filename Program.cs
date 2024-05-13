@@ -1,4 +1,5 @@
 using System.Diagnostics.Eventing.Reader;
+using System.Formats.Tar;
 using ebooks_dotnet7_api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ var ebooks = app.MapGroup("api/ebook");
 
 // TODO: Add more routes
 ebooks.MapPost("/", CreateEBookAsync);
-ebooks.MapGet("/?genre={genre}&author={author}&format={format}", GetAllBooks);
+ebooks.MapGet("/", GetAllBooks);
 ebooks.MapPut("/{id}", UpdateBook);
 ebooks.MapPut("/{id}/change-availability", ChangeAvailability);
 ebooks.MapPut("/{id}/increment-stock", IncrementStock);
@@ -24,11 +25,11 @@ app.Run();
 // TODO: Add more methods
 async Task<IResult> CreateEBookAsync([FromBody] AddEbookDto ebookDto, DataContext context)
 {
-    if (string.IsNullOrEmpty(ebookDto.Title) || string.IsNullOrEmpty(ebookDto.Author) || string.IsNullOrEmpty(ebookDto.Genre) || string.IsNullOrEmpty(ebookDto.Format) || ebookDto.Price < 0)
+    if (string.IsNullOrEmpty(ebookDto.Title) || string.IsNullOrEmpty(ebookDto.Author) || string.IsNullOrEmpty(ebookDto.Genre) || string.IsNullOrEmpty(ebookDto.Format) || ebookDto.Price <= 0)
         return TypedResults.BadRequest("Invalid data provided");
     var existingEbook = await context.EBooks.Where(e => e.Title == ebookDto.Title && e.Author == ebookDto.Author).FirstOrDefaultAsync();
     if (existingEbook is not null)
-        return TypedResults.BadRequest("eBook already exists");
+        return TypedResults.BadRequest("The eBook already exists");
     EBook eBook = new ()
     {
         Title = ebookDto.Title,
@@ -44,11 +45,16 @@ async Task<IResult> CreateEBookAsync([FromBody] AddEbookDto ebookDto, DataContex
     return TypedResults.Ok(eBook);
 }
 
+async Task<IResult> GetAllBooks([FromQuery] string genre, string author, string format, DataContext context)
+{
+    return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre && e.Author == author && e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+}
+
 async Task<IResult> UpdateBook(int id, [FromBody] EditEbookDto ebookDto, DataContext context)
 {
     var existingEbook = await context.EBooks.FindAsync(id);
     if (existingEbook is null)
-        return TypedResults.NotFound("eBook doesn't exist");
+        return TypedResults.NotFound("The eBook doesn't exist");
     if (!string.IsNullOrEmpty(ebookDto.Title))
         existingEbook.Title = ebookDto.Title;
     if (!string.IsNullOrEmpty(ebookDto.Author))
@@ -68,7 +74,7 @@ async Task<IResult> ChangeAvailability(int id, DataContext context)
 {
     var existingEbook = await context.EBooks.FindAsync(id);
     if (existingEbook is null)
-        return TypedResults.NotFound("eBook doesn't exist");
+        return TypedResults.NotFound("The eBook doesn't exist");
     existingEbook.IsAvailable = !existingEbook.IsAvailable;
     context.Entry(existingEbook).State = EntityState.Modified;
     await context.SaveChangesAsync();
@@ -79,7 +85,7 @@ async Task<IResult> IncrementStock(int id, [FromBody] IncrementStockDto ebookDto
 {
     var existingEbook = await context.EBooks.FindAsync(id);
     if (existingEbook is null)
-        return TypedResults.NotFound("eBook doesn't exist");
+        return TypedResults.NotFound("The eBook doesn't exist");
     if (ebookDto.Stock <= 0)
         return TypedResults.BadRequest("Invalid data provided");
     existingEbook.Stock += ebookDto.Stock;
@@ -92,7 +98,9 @@ async Task<IResult> BuyEbook([FromBody] PurchaseDto purchaseDto, DataContext con
 {
     var existingEbook = await context.EBooks.FindAsync(purchaseDto.Id);
     if (existingEbook is null)
-        return TypedResults.NotFound("eBook doesn't exist");
+        return TypedResults.NotFound("The eBook doesn't exist");
+    if (!existingEbook.IsAvailable)
+        return TypedResults.BadRequest("The eBook is not available");
     if (purchaseDto.Amount <= 0)
         return TypedResults.BadRequest("The amount must be at least 1");
     if (purchaseDto.Amount > existingEbook.Stock)
@@ -111,7 +119,7 @@ async Task<IResult> DeleteEbook(int id, DataContext context)
 {
     var existingEbook = await context.EBooks.FindAsync(id);
     if (existingEbook is null)
-        return TypedResults.NotFound("eBook doesn't exist");
+        return TypedResults.NotFound("The eBook doesn't exist");
     context.Remove(existingEbook);
     await context.SaveChangesAsync();
     return TypedResults.Ok("eBook deleted successfully!");
