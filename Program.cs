@@ -47,7 +47,21 @@ async Task<IResult> CreateEBookAsync([FromBody] AddEbookDto ebookDto, DataContex
 
 async Task<IResult> GetAllBooks([FromQuery] string genre, string author, string format, DataContext context)
 {
-    return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre && e.Author == author && e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(genre) || !string.IsNullOrEmpty(author) || !string.IsNullOrEmpty(format))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre && e.Author == author && e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(genre) || !string.IsNullOrEmpty(author))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre && e.Author == author).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(genre) || !string.IsNullOrEmpty(format))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre && e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(author) || !string.IsNullOrEmpty(format))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Author == author && e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(genre))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Genre == genre).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(author))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Author == author).OrderByDescending(e => e.Title).ToListAsync());
+    if (!string.IsNullOrEmpty(format))
+        return TypedResults.Ok(await context.EBooks.Where(e => e.Format == format).OrderByDescending(e => e.Title).ToListAsync());
+    return TypedResults.Ok(await context.EBooks.OrderByDescending(e => e.Title).ToListAsync());
 }
 
 async Task<IResult> UpdateBook(int id, [FromBody] EditEbookDto ebookDto, DataContext context)
