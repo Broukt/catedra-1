@@ -87,3 +87,22 @@ async Task<IResult> IncrementStock(int id, [FromBody] IncrementStockDto ebookDto
     await context.SaveChangesAsync();
     return TypedResults.Ok(existingEbook);
 }
+
+async Task<IResult> BuyEbook([FromBody] PurchaseDto purchaseDto, DataContext context)
+{
+    var existingEbook = await context.EBooks.FindAsync(purchaseDto.Id);
+    if (existingEbook is null)
+        return TypedResults.NotFound("eBook doesn't exist");
+    if (purchaseDto.Amount <= 0)
+        return TypedResults.BadRequest("The amount must be at least 1");
+    if (purchaseDto.Amount > existingEbook.Stock)
+        return TypedResults.BadRequest("The amount can't be more than the actual stock");
+    if (purchaseDto.Total != existingEbook.Price * purchaseDto.Amount)
+        return TypedResults.BadRequest("The total is not correct");
+    existingEbook.Stock -= purchaseDto.Amount;
+    if (existingEbook.Stock == 0)
+        existingEbook.IsAvailable = false;
+    context.Entry(existingEbook).State = EntityState.Modified;
+    await context.SaveChangesAsync();
+    return TypedResults.Ok("Purchase done successfully!");
+}
