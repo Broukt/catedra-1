@@ -43,3 +43,23 @@ async Task<IResult> CreateEBookAsync([FromBody] AddEbookDto ebookDto, DataContex
     await context.SaveChangesAsync();
     return TypedResults.Ok(eBook);
 }
+
+async Task<IResult> UpdateBook(int id, [FromBody] EditEbookDto ebookDto, DataContext context)
+{
+    var existingEbook = await context.EBooks.FindAsync(id);
+    if (existingEbook is null)
+        return TypedResults.BadRequest("eBook doesn't exist");
+    if (!string.IsNullOrEmpty(ebookDto.Title))
+        existingEbook.Title = ebookDto.Title;
+    if (!string.IsNullOrEmpty(ebookDto.Author))
+        existingEbook.Author = ebookDto.Author;
+    if (!string.IsNullOrEmpty(ebookDto.Genre))
+        existingEbook.Genre = ebookDto.Genre;
+    if (!string.IsNullOrEmpty(ebookDto.Format))
+        existingEbook.Format = ebookDto.Format;
+    if (ebookDto.Price >= 0)
+        existingEbook.Price = ebookDto.Price;
+    context.Entry(existingEbook).State = EntityState.Modified;
+    await context.SaveChangesAsync();
+    return TypedResults.Ok(existingEbook);
+}
