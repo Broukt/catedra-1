@@ -1,0 +1,223 @@
+{
+	"info": {
+		"_postman_id": "a1206149-4493-47f5-b3ca-ce1854647864",
+		"name": "eBookAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29548929"
+	},
+	"item": [
+		{
+			"name": "Create eBook",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"title\",\r\n    \"author\": \"author\",\r\n    \"genre\": \"genre\",\r\n    \"format\": \"format\",\r\n    \"price\": 1000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/ebook",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all eBooks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/ebook/?genre=genre&author=author&format=format",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						""
+					],
+					"query": [
+						{
+							"key": "genre",
+							"value": "genre"
+						},
+						{
+							"key": "author",
+							"value": "author"
+						},
+						{
+							"key": "format",
+							"value": "format"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update eBook",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"title\",\r\n    \"author\": \"author\",\r\n    \"genre\": \"genre\",\r\n    \"format\": \"format\",\r\n    \"price\": 10000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/ebook/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change availability",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/ebook/1/change-availability",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						"1",
+						"change-availability"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Increment stock",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"stock\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/ebook/1/increment-stock",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						"1",
+						"increment-stock"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Purchase eBook",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 1,\r\n    \"amount\": 1,\r\n    \"total\": 1000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/ebook/purchase",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete eBook",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/ebook/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"ebook",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}
